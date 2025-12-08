@@ -22,16 +22,30 @@ def chunk_message(anime_list, max_lines=500, char_limit=4000):
     return chunks
 
 def extract_animes_from_message(text, entities):
+    """
+    Hem text_link (gömülü) hem de url (açık) entity'lerini çeker.
+    """
     extracted = []
     if not entities:
         return extracted
 
     for entity in entities:
+        url = None
+        title = None
+        
+        start = entity.offset
+        end = start + entity.length
+        segment = text[start:end]
+
         if entity.type == "text_link":
             url = entity.url
-            start = entity.offset
-            end = start + entity.length
-            title = text[start:end]
-            if validators.url(url):
-                extracted.append({"title": title.strip(), "url": url})
+            title = segment.strip()
+        
+        elif entity.type == "url":
+            url = segment.strip()
+            title = "Yeni Anime" 
+
+        if url and validators.url(url):
+            extracted.append({"title": title, "url": url})
+            
     return extracted
