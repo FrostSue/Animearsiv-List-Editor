@@ -41,7 +41,16 @@ class Database:
         with open(self.db_file, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
 
+    def _sanitize_title(self, title):
+        """Başlıktaki markdown bozan karakterleri ve yeni satırları temizler."""
+        if not title: return ""
+        title = title.replace("\n", " ").replace("\r", " ").strip()
+        title = title.replace("[", "(").replace("]", ")")
+        return title
+
     def add_anime(self, title, url, user_id):
+        title = self._sanitize_title(title)
+        
         data = self.load()
         for anime in data["anime_list"]:
             if anime["title"].lower() == title.lower() or anime["url"] == url:
@@ -58,6 +67,8 @@ class Database:
         return True, new_entry
 
     def force_add_anime(self, title, url, user_id):
+        title = self._sanitize_title(title)
+        
         data = self.load()
         data["anime_list"] = [a for a in data["anime_list"] if a["title"].lower() != title.lower()]
         new_entry = {
