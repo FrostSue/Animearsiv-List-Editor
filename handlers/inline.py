@@ -1,4 +1,4 @@
-from aiogram import Router, types
+from aiogram import Router, types, html
 from database.db import db
 import hashlib
 
@@ -14,13 +14,19 @@ async def inline_search_handler(query: types.InlineQuery):
     for anime in anime_list:
         if text in anime["title"].lower():
             result_id = hashlib.md5(anime["url"].encode()).hexdigest()
+            escaped_title = html.quote(anime["title"])
+            escaped_url = html.quote(anime["url"])
+            
+            content = f"📺 <b>{escaped_title}</b>\n🔗 {escaped_url}"
+            
             results.append(
                 types.InlineQueryResultArticle(
                     id=result_id,
                     title=anime["title"],
                     input_message_content=types.InputTextMessageContent(
-                        message_text=f"📺 **{anime['title']}**\n🔗 {anime['url']}",
-                        parse_mode="Markdown"
+                        message_text=content,
+                        parse_mode="HTML",
+                        disable_web_page_preview=False
                     ),
                     description=anime["url"]
                 )
