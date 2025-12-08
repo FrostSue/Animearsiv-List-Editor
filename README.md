@@ -7,8 +7,6 @@
 
 A robust, modular, and professional Telegram bot designed to manage, store, and serve anime lists. Built with **Python**, **aiogram**, and **Flask**, utilizing a JSON-based database with automatic backup systems.
 
----
-
 ## 🌟 Features
 
 ### 🛡️ Admin System
@@ -28,84 +26,73 @@ A robust, modular, and professional Telegram bot designed to manage, store, and 
 - **Dockerized:** Fully containerized for easy deployment.
 - **JSON Database:** Lightweight, portable, and human-readable data storage.
 
----
-
 ## 🚀 Installation & Setup
 
-### **Prerequisites**
+### Prerequisites
 - Python 3.10+ or Docker
 - A Telegram Bot Token (from @BotFather)
 
----
+### Option 1: Docker (Recommended)
 
-## Option 1: **Docker (Recommended)**
-
-### 1. Clone the repository:
-```bash
-git clone https://github.com/YOUR_USERNAME/REPO_NAME.git
-cd REPO_NAME
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/YOUR_USERNAME/REPO_NAME.git](https://github.com/YOUR_USERNAME/REPO_NAME.git)
+   cd REPO_NAME
 ````
 
-### 2. Configure Environment
+2.  **Configure Environment:**
+    Create a `.env` file in the root directory:
 
-Create a `.env` file in the root directory:
+    ```env
+    BOT_TOKEN=your_telegram_bot_token
+    OWNER_ID=your_telegram_user_id
+    WEB_PORT=5000
+    ```
 
-```
-BOT_TOKEN=your_telegram_bot_token
-OWNER_ID=your_telegram_user_id
-WEB_PORT=5000
-```
+3.  **Build and Run:**
 
-### 3. Build and Run:
+    ```bash
+    docker-compose up --build -d
+    ```
 
-```bash
-docker-compose up --build -d
-```
+### Option 2: Local Run
 
----
+1.  **Install dependencies:**
 
-## Option 2: **Local Run**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### Install dependencies:
+2.  **Run the bot:**
 
-```bash
-pip install -r requirements.txt
-```
-
-### Run the bot:
-
-```bash
-python bot.py
-```
-
----
+    ```bash
+    python bot.py
+    ```
 
 ## 🎮 Usage & Commands
 
 ### 👑 Admin Commands
 
-| Command                         | Description                                           |                                  |
-| ------------------------------- | ----------------------------------------------------- | -------------------------------- |
-| `/ekle <Name>                   | <Link>`                                               | Add a new anime to the database. |
-| `/yedekle`                      | Create an immediate manual backup.                    |                                  |
-| `/addadmin <id>` *(Owner Only)* | Promote a user to admin.                              |                                  |
-| `/deladmin <id>` *(Owner Only)* | Demote an admin.                                      |                                  |
-| **Reply “import”**              | Reply to any message containing links to bulk import. |                                  |
+| Command | Description |
+| :--- | :--- |
+| `/ekle <Name> \| <Link>` | Add a new anime to the database. |
+| `/yedekle` | Create an immediate manual backup. |
+| `/addadmin <id>` | (Owner Only) Promote a user to admin. |
+| `/deladmin <id>` | (Owner Only) Demote an admin. |
+| **Reply "import"** | Reply to a message with links to bulk import. |
 
 ### 👤 User Commands
 
-| Command            | Description                                |
-| ------------------ | ------------------------------------------ |
-| `/start`           | Start the bot and see the welcome message. |
-| `/help`            | View available commands.                   |
-| `/ara <query>`     | Search for an anime in the database.       |
-| `@BotName <query>` | Use inline search in any chat.             |
-
----
+| Command | Description |
+| :--- | :--- |
+| `/start` | Start the bot and see the welcome message. |
+| `/help` | View available commands. |
+| `/ara <query>` | Search for an anime in the database. |
+| `@BotName <query>` | Use inline search in any chat. |
 
 ## 📂 Project Structure
 
-```plaintext
+```text
 ├── backups/           # Auto-generated backups
 ├── database/          # JSON Database engine
 ├── handlers/          # Bot logic (Admin, User, Inline)
@@ -116,17 +103,13 @@ python bot.py
 └── .env               # Secrets
 ```
 
----
-
 ## 🌐 Web Panel Access
 
-The web panel runs on port **5000** by default.
+The web panel runs on port `5000` by default.
 
-* Local: `http://localhost:5000`
-* Server: `http://YOUR_SERVER_IP:5000`
-
----
+  - **Local:** `http://localhost:5000`
+  - **Server:** `http://YOUR_SERVER_IP:5000`
 
 ## 📄 License
 
-This project is open-source and available under the **MIT License**.
+This project is open-source and available under the MIT License.
