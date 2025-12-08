@@ -6,13 +6,12 @@ from database.db import db
 from utils.helper import extract_animes_from_message, chunk_message
 from utils.keyboards import confirm_keyboard
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = Router()
-try:
-    OWNER_ID = int(os.getenv("OWNER_ID", 0))
-except ValueError:
-    OWNER_ID = 0
-    print("HATA: .env dosyasındaki OWNER_ID sayı değil!")
+OWNER_ID = int(os.getenv("OWNER_ID", 0))
 
 class AnimeStates(StatesGroup):
     waiting_for_overwrite = State()
@@ -55,9 +54,7 @@ async def cmd_backup(message: types.Message):
 
 @router.message(Command("ekle"))
 async def cmd_add(message: types.Message, state: FSMContext):
-    if not is_admin(message.from_user.id):
-        print(f"Yetkisiz Erişim Denemesi: {message.from_user.id} (Owner: {OWNER_ID})")
-        return
+    if not is_admin(message.from_user.id): return
 
     args = message.text.split(" ", 1)
     if len(args) < 2 or "|" not in args[1]:
@@ -86,7 +83,7 @@ async def import_list(message: types.Message):
     if not is_admin(message.from_user.id): return
     
     target_msg = message.reply_to_message
-    if not target_msg.entities:
+    if not target_msg.entities and not target_msg.text:
         await message.answer("⚠️ Yanıtlanan mesajda link bulunamadı.")
         return
 
