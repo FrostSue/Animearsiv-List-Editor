@@ -3,49 +3,49 @@
 <head>
     <title>Anime Bot Panel</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f9f9f9; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background-color: #f9f9f9; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .stats { font-size: 1.1em; color: #555; }
-        .stats span { font-weight: bold; color: #333; margin-left: 5px; }
+        .nav a { margin-left: 15px; text-decoration: none; color: #555; font-weight: bold; }
+        .nav a:hover { color: #2196F3; }
+        .btn-del { padding: 4px 8px; background: #ff4444; color: white; text-decoration: none; border-radius: 4px; font-size: 0.8em; margin-left: 5px; }
+        .btn-edit { padding: 4px 8px; background: #FF9800; color: white; text-decoration: none; border-radius: 4px; font-size: 0.8em; }
         table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
         th, td { border-bottom: 1px solid #ddd; padding: 12px 15px; text-align: left; }
         th { background-color: #4CAF50; color: white; }
         tr:hover { background-color: #f1f1f1; }
-        .btn { padding: 6px 12px; background: #ff4444; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9em; }
-        .btn:hover { background: #cc0000; }
-        .download { padding: 10px 20px; background: #2196F3; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; }
-        .download:hover { background: #0b7dda; }
-        a.link { color: #2196F3; text-decoration: none; }
-        a.link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="header">
         <div>
             <h1>Anime Yönetim Paneli</h1>
-            <div class="stats">
-                Toplam Anime: <span>{{ stats.total }}</span> | 
-                Son Ekleme: <span>{{ stats.last_update }}</span>
-            </div>
+            <div>Toplam: <b>{{ stats.total }}</b> | Son Ekleme: {{ stats.last_update }}</div>
         </div>
-        <a href="/download" class="download">📥 Veritabanını İndir (JSON)</a>
+        <div class="nav">
+            <a href="/download">📥 Yedek İndir</a>
+            <a href="/settings">⚙️ Adminler</a>
+            <a href="/logout" style="color: red;">Çıkış Yap</a>
+        </div>
     </div>
 
     <table>
         <tr>
             <th>Anime Adı</th>
             <th>URL</th>
-            <th>Ekleyen ID</th>
-            <th>Eklenme Tarihi</th>
-            <th>İşlem</th>
+            <th>Ekleyen</th>
+            <th>Tarih</th>
+            <th>İşlemler</th>
         </tr>
         {% for anime in animes %}
         <tr>
             <td>{{ anime.title }}</td>
-            <td><a href="{{ anime.url }}" target="_blank" class="link">Linke Git</a></td>
+            <td><a href="{{ anime.url }}" target="_blank">Link</a></td>
             <td>{{ anime.added_by }}</td>
             <td>{{ anime.date_added }}</td>
-            <td><a href="/delete/{{ anime.title }}" class="btn" onclick="return confirm('Silmek istediğine emin misin?');">Sil</a></td>
+            <td>
+                <a href="/edit/{{ anime.title }}" class="btn-edit">Düzenle</a>
+                <a href="/delete/{{ anime.title }}" class="btn-del" onclick="return confirm('Silmek istediğine emin misin?');">Sil</a>
+            </td>
         </tr>
         {% endfor %}
     </table>

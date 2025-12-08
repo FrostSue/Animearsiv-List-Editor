@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Düzenle - {{ anime.title }}</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding-top: 50px; }
+        .box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 500px; }
+        h2 { margin-top: 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .btns { display: flex; justify-content: space-between; }
+        button { padding: 10px 20px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        a { padding: 10px 20px; background: #ddd; color: #333; text-decoration: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Anime Düzenle</h2>
+        <form method="POST">
+            <label>Anime Başlığı</label>
+            <input type="text" name="title" value="{{ anime.title }}" required>
+            
+            <label>Bağlantı (URL)</label>
+            <input type="url" name="url" value="{{ anime.url }}" required>
+            
+            <div class="btns">
+                <a href="/">İptal</a>
+                <button type="submit">Kaydet</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
