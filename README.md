@@ -7,6 +7,8 @@
 
 A robust, modular, and professional Telegram bot designed to manage, store, and serve anime lists. Built with **Python**, **aiogram**, and **Flask**, utilizing a JSON-based database with automatic backup systems.
 
+---
+
 ## 🌟 Features
 
 ### 🛡️ Admin System
@@ -26,48 +28,57 @@ A robust, modular, and professional Telegram bot designed to manage, store, and 
 - **Dockerized:** Fully containerized for easy deployment.
 - **JSON Database:** Lightweight, portable, and human-readable data storage.
 
+---
+
 ## 🚀 Installation & Setup
 
 ### Prerequisites
 - Python 3.10+ or Docker
 - A Telegram Bot Token (from @BotFather)
 
-### Option 1: Docker (Recommended)
+---
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/REPO_NAME.git
-   cd REPO_NAME
+## Option 1: Docker (Recommended)
+
+### 1. Clone the repository:
+```bash
+git clone https://github.com/YOUR_USERNAME/REPO_NAME.git
+cd REPO_NAME
 ````
 
-2. **Configure Environment:**
-   Create a `.env` file in the root directory:
+### 2. Configure Environment
 
-   ```env
-   BOT_TOKEN=your_telegram_bot_token
-   OWNER_ID=your_telegram_user_id
-   WEB_PORT=5000
-   ```
+Create a `.env` file in the root directory:
 
-3. **Build and Run:**
+```env
+BOT_TOKEN=your_telegram_bot_token
+OWNER_ID=your_telegram_user_id
+WEB_PORT=5000
+```
 
-   ```bash
-   docker-compose up --build -d
-   ```
+### 3. Build and Run:
 
-### Option 2: Local Run
+```bash
+docker-compose up --build -d
+```
 
-1. **Install dependencies:**
+---
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Option 2: Local Run
 
-2. **Run the bot:**
+### Install dependencies:
 
-   ```bash
-   python bot.py
-   ```
+```bash
+pip install -r requirements.txt
+```
+
+### Run the bot:
+
+```bash
+python bot.py
+```
+
+---
 
 ## 🎮 Usage & Commands
 
@@ -90,6 +101,8 @@ A robust, modular, and professional Telegram bot designed to manage, store, and 
 | `/ara <query>`     | Search for an anime in the database.       |
 | `@BotName <query>` | Use inline search in any chat.             |
 
+---
+
 ## 📂 Project Structure
 
 ```text
@@ -103,13 +116,17 @@ A robust, modular, and professional Telegram bot designed to manage, store, and 
 └── .env               # Secrets
 ```
 
+---
+
 ## 🌐 Web Panel Access
 
 The web panel runs on port `5000` by default.
 
-* **Local:** `http://localhost:5000`
-* **Server:** `http://YOUR_SERVER_IP:5000`
+* **Local:** [http://localhost:5000](http://localhost:5000)
+* **Server:** http://YOUR_SERVER_IP:5000
+
+---
 
 ## 📄 License
 
-This project is open-source and available under the MIT License.
+This project is open-source and available under the **MIT License**.
