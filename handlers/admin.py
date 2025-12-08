@@ -1,4 +1,4 @@
-from aiogram import Router, F, types
+from aiogram import Router, F, types, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -6,6 +6,7 @@ from database.db import db
 from utils.helper import extract_animes_from_message, chunk_message
 from utils.keyboards import confirm_keyboard
 import os
+import re
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -52,6 +53,13 @@ async def cmd_backup(message: types.Message):
     filename = db.create_backup()
     await message.answer(f"✅ Yedek oluşturuldu: `{filename}`")
 
+@router.message(Command("yayinla"))
+async def cmd_publish(message: types.Message):
+    if not is_admin(message.from_user.id): return
+    await message.answer("🚀 Liste yayınlanıyor...")
+    await refresh_list(message)
+    await message.answer("✅ Liste başarıyla güncellendi.")
+
 @router.message(Command("ekle"))
 async def cmd_add(message: types.Message, state: FSMContext):
     if not is_admin(message.from_user.id): return
@@ -68,8 +76,7 @@ async def cmd_add(message: types.Message, state: FSMContext):
     success, result = db.add_anime(title, url, message.from_user.id)
     
     if success:
-        await message.answer(f"✅ **{title}** listeye eklendi!")
-        await refresh_list(message)
+        await message.answer(f"✅ **{title}** veritabanına eklendi!\nYayınlamak için /yayinla komutunu kullanın.")
     else:
         await state.update_data(title=title, url=url)
         await state.set_state(AnimeStates.waiting_for_overwrite)
@@ -78,13 +85,47 @@ async def cmd_add(message: types.Message, state: FSMContext):
             reply_markup=confirm_keyboard(message.from_user.id)
         )
 
-@router.message(F.text.lower() == "import", F.reply_to_message)
-async def import_list(message: types.Message):
+@router.message(Command("import"))
+async def cmd_import_link(message: types.Message, bot: Bot):
     if not is_admin(message.from_user.id): return
     
-    target_msg = message.reply_to_message
-    if not target_msg.entities and not target_msg.text:
-        await message.answer("⚠️ Yanıtlanan mesajda link bulunamadı.")
+    args = message.text.split()
+    
+    target_msg = None
+
+    if message.reply_to_message:
+        target_msg = message.reply_to_message
+    
+    elif len(args) > 1:
+        link = args[1]
+        pattern = r"t\.me\/(?:c\/)?(\d+|[\w\d_]+)\/(\d+)"
+        match = re.search(pattern, link)
+        
+        if match:
+            chat_identifier = match.group(1)
+            message_id = int(match.group(2))
+            
+            if chat_identifier.isdigit():
+                chat_id = int(f"-100{chat_identifier}")
+            else:
+                chat_id = f"@{chat_identifier}"
+            
+            try:
+                target_msg = await bot.forward_message(
+                    chat_id=message.chat.id,
+                    from_chat_id=chat_id,
+                    message_id=message_id
+                )
+                await target_msg.delete() 
+            except Exception as e:
+                await message.answer(f"⚠️ Mesaj alınamadı. Botun o kanalda/grupta olduğundan emin olun.\nHata: {str(e)}")
+                return
+        else:
+            await message.answer("⚠️ Geçersiz link formatı.")
+            return
+
+    if not target_msg or (not target_msg.entities and not target_msg.text):
+        await message.answer("⚠️ İşlenecek mesaj bulunamadı. Lütfen bir mesajı yanıtlayın veya link verin.")
         return
 
     extracted = extract_animes_from_message(target_msg.text, target_msg.entities)
@@ -93,8 +134,11 @@ async def import_list(message: types.Message):
         success, _ = db.add_anime(item['title'], item['url'], message.from_user.id)
         if success: count += 1
     
-    await message.answer(f"✅ Toplam **{len(extracted)}** link bulundu, **{count}** yeni anime eklendi.")
-    await refresh_list(message)
+    await message.answer(f"✅ **{count}** yeni anime veritabanına eklendi.\nListeyi güncellemek için /yayinla komutunu kullanın.")
+
+@router.message(F.text.lower() == "import", F.reply_to_message)
+async def import_reply_shortcut(message: types.Message):
+    await cmd_import_link(message, message.bot)
 
 async def refresh_list(message: types.Message):
     data = db.load()
