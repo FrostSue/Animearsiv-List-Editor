@@ -2,6 +2,10 @@ import json
 import os
 import shutil
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Database:
     def __init__(self, db_file="database/data.json"):
@@ -14,14 +18,38 @@ class Database:
             os.makedirs("database")
         if not os.path.exists(self.backup_dir):
             os.makedirs(self.backup_dir)
-            
+        
+        default_user = os.getenv("DEFAULT_WEB_USER", "admin")
+        default_pass = os.getenv("DEFAULT_WEB_PASS", "admin")
+        
         if not os.path.exists(self.db_file):
             default_data = {
                 "anime_list": [],
                 "admins": [],
+                "web_admins": {}, 
                 "settings": {"max_lines": 500, "message_ids": []}
             }
+            if default_user and default_pass:
+                default_data["web_admins"][default_user] = generate_password_hash(default_pass)
+                print(f"🔐 İlk Web Admin Oluşturuldu: {default_user}")
+            
             self.save(default_data)
+        
+        else:
+            data = self.load()
+            changed = False
+            
+            if "web_admins" not in data:
+                data["web_admins"] = {}
+                changed = True
+            
+            if not data["web_admins"] and default_user and default_pass:
+                data["web_admins"][default_user] = generate_password_hash(default_pass)
+                print(f"🔐 Veritabanı Güncellendi: Varsayılan Admin ({default_user}) eklendi.")
+                changed = True
+            
+            if changed:
+                self.save(data)
 
     def load(self):
         try:
@@ -32,7 +60,7 @@ class Database:
             if backups:
                 shutil.copy(os.path.join(self.backup_dir, backups[-1]), self.db_file)
                 return self.load()
-            return {"anime_list": [], "admins": [], "settings": {"max_lines": 500, "message_ids": []}}
+            return {"anime_list": [], "admins": [], "web_admins": {}, "settings": {"max_lines": 500, "message_ids": []}}
 
     def save(self, data):
         if "anime_list" in data:
@@ -42,7 +70,6 @@ class Database:
             json.dump(data, f, indent=4, ensure_ascii=False)
 
     def _sanitize_title(self, title):
-        """Başlıktaki markdown bozan karakterleri ve yeni satırları temizler."""
         if not title: return ""
         title = title.replace("\n", " ").replace("\r", " ").strip()
         title = title.replace("[", "(").replace("]", ")")
@@ -50,7 +77,6 @@ class Database:
 
     def add_anime(self, title, url, user_id):
         title = self._sanitize_title(title)
-        
         data = self.load()
         for anime in data["anime_list"]:
             if anime["title"].lower() == title.lower() or anime["url"] == url:
@@ -66,19 +92,46 @@ class Database:
         self.save(data)
         return True, new_entry
 
-    def force_add_anime(self, title, url, user_id):
-        title = self._sanitize_title(title)
-        
+    def update_anime(self, old_title, new_title, new_url):
         data = self.load()
-        data["anime_list"] = [a for a in data["anime_list"] if a["title"].lower() != title.lower()]
-        new_entry = {
-            "title": title,
-            "url": url,
-            "added_by": user_id,
-            "date_added": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
-        data["anime_list"].append(new_entry)
+        new_title = self._sanitize_title(new_title)
+        found = False
+        for anime in data["anime_list"]:
+            if anime["title"] == old_title:
+                anime["title"] = new_title
+                anime["url"] = new_url
+                found = True
+                break
+        if found:
+            self.save(data)
+        return found
+
+    def delete_anime(self, title):
+        data = self.load()
+        original_len = len(data["anime_list"])
+        data["anime_list"] = [a for a in data["anime_list"] if a["title"] != title]
+        if len(data["anime_list"]) != original_len:
+            self.save(data)
+            return True
+        return False
+
+    def check_web_login(self, username, password):
+        data = self.load()
+        web_admins = data.get("web_admins", {})
+        if username in web_admins:
+            return check_password_hash(web_admins[username], password)
+        return False
+
+    def add_web_admin(self, username, password):
+        data = self.load()
+        if "web_admins" not in data: data["web_admins"] = {}
+        
+        if username in data["web_admins"]:
+            return False
+        
+        data["web_admins"][username] = generate_password_hash(password)
         self.save(data)
+        return True
 
     def create_backup(self):
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
