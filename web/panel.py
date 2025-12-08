@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, url_for, send_file
 from database.db import db
 import threading
 import logging
+import os
 
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
@@ -10,7 +11,12 @@ log.setLevel(logging.ERROR)
 @app.route('/')
 def index():
     data = db.load()
-    return render_template('index.html', animes=data['anime_list'])
+    anime_list = data.get('anime_list', [])
+    stats = {
+        "total": len(anime_list),
+        "last_update": anime_list[-1]['date_added'] if anime_list else "Yok"
+    }
+    return render_template('index.html', animes=anime_list, stats=stats)
 
 @app.route('/delete/<title>')
 def delete(title):
@@ -21,7 +27,8 @@ def delete(title):
 
 @app.route('/download')
 def download():
-    return send_file("../database/data.json", as_attachment=True)
+    db_path = os.path.abspath("database/data.json")
+    return send_file(db_path, as_attachment=True)
 
 def run_web():
     app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
