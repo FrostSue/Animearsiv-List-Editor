@@ -132,15 +132,17 @@ async def cmd_import_link(message: types.Message, bot: Bot):
     
     await message.answer(f"✅ **{count}** yeni anime eklendi.\n/yayinla ile paylaşabilirsiniz.")
 
-@router.message((F.text & ~F.text.startswith("/")) | (F.caption & ~F.caption.startswith("/")))
+@router.message(F.text | F.caption)
 async def smart_import_handler(message: types.Message):
     if not is_admin(message.from_user.id): return
     if message.chat.type != "private": return
     
+    if message.text and message.text.startswith("/"): return
+    if message.caption and message.caption.startswith("/"): return
+
     extracted = extract_animes_from_message(message.text or message.caption, message.entities or message.caption_entities)
     
-    if not extracted:
-        return
+    if not extracted: return
 
     count = 0
     duplicates = 0
