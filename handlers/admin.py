@@ -8,7 +8,11 @@ from utils.keyboards import confirm_keyboard
 import os
 
 router = Router()
-OWNER_ID = int(os.getenv("OWNER_ID", 0))
+try:
+    OWNER_ID = int(os.getenv("OWNER_ID", 0))
+except ValueError:
+    OWNER_ID = 0
+    print("HATA: .env dosyasındaki OWNER_ID sayı değil!")
 
 class AnimeStates(StatesGroup):
     waiting_for_overwrite = State()
@@ -51,7 +55,9 @@ async def cmd_backup(message: types.Message):
 
 @router.message(Command("ekle"))
 async def cmd_add(message: types.Message, state: FSMContext):
-    if not is_admin(message.from_user.id): return
+    if not is_admin(message.from_user.id):
+        print(f"Yetkisiz Erişim Denemesi: {message.from_user.id} (Owner: {OWNER_ID})")
+        return
 
     args = message.text.split(" ", 1)
     if len(args) < 2 or "|" not in args[1]:
