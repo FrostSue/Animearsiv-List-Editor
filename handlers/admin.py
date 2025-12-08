@@ -5,6 +5,7 @@ from aiogram.fsm.state import State, StatesGroup
 from database.db import db
 from utils.helper import extract_animes_from_message, chunk_message
 from utils.keyboards import confirm_keyboard
+from utils.tunnel import tunnel_manager
 import os
 import re
 from dotenv import load_dotenv
@@ -22,6 +23,37 @@ def is_admin(user_id):
 
 def is_owner(user_id):
     return user_id == OWNER_ID
+
+@router.message(Command("site"))
+async def cmd_get_site(message: types.Message):
+    if not is_admin(message.from_user.id): return
+    
+    url = tunnel_manager.get_url()
+    
+    if url:
+        await message.answer(f"🌐 **Web Yönetim Paneli**\n\n🔗 Link: {url}\n\n⚠️ Bu link bot yeniden başlatılana kadar geçerlidir.")
+    else:
+        await message.answer("⏳ Tünel oluşturuluyor, lütfen 10-15 saniye sonra tekrar deneyin.")
+
+@router.message(Command("siteadmin"))
+async def cmd_add_site_admin(message: types.Message):
+    if not is_owner(message.from_user.id): return
+    
+    try:
+        args = message.text.split()
+        if len(args) != 3:
+            raise ValueError
+            
+        username = args[1]
+        password = args[2]
+        
+        if db.add_web_admin(username, password):
+            await message.answer(f"✅ Web Admin Eklendi:\n👤 Kullanıcı: `{username}`\n🔑 Şifre: `{password}`")
+        else:
+            await message.answer("⚠️ Bu kullanıcı adı zaten mevcut.")
+            
+    except ValueError:
+        await message.answer("⚠️ Kullanım: `/siteadmin <kullanıcı_adı> <şifre>`")
 
 @router.message(Command("addadmin"))
 async def cmd_add_admin(message: types.Message):
