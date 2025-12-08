@@ -36,59 +36,59 @@ A robust, modular, and professional Telegram bot designed to manage, store, and 
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/REPO_NAME.git](https://github.com/YOUR_USERNAME/REPO_NAME.git)
+   git clone https://github.com/YOUR_USERNAME/REPO_NAME.git
    cd REPO_NAME
 ````
 
-2.  **Configure Environment:**
-    Create a `.env` file in the root directory:
+2. **Configure Environment:**
+   Create a `.env` file in the root directory:
 
-    ```env
-    BOT_TOKEN=your_telegram_bot_token
-    OWNER_ID=your_telegram_user_id
-    WEB_PORT=5000
-    ```
+   ```env
+   BOT_TOKEN=your_telegram_bot_token
+   OWNER_ID=your_telegram_user_id
+   WEB_PORT=5000
+   ```
 
-3.  **Build and Run:**
+3. **Build and Run:**
 
-    ```bash
-    docker-compose up --build -d
-    ```
+   ```bash
+   docker-compose up --build -d
+   ```
 
 ### Option 2: Local Run
 
-1.  **Install dependencies:**
+1. **Install dependencies:**
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-2.  **Run the bot:**
+2. **Run the bot:**
 
-    ```bash
-    python bot.py
-    ```
+   ```bash
+   python bot.py
+   ```
 
 ## 🎮 Usage & Commands
 
 ### 👑 Admin Commands
 
-| Command | Description |
-| :--- | :--- |
-| `/ekle <Name> \| <Link>` | Add a new anime to the database. |
-| `/yedekle` | Create an immediate manual backup. |
-| `/addadmin <id>` | (Owner Only) Promote a user to admin. |
-| `/deladmin <id>` | (Owner Only) Demote an admin. |
-| **Reply "import"** | Reply to a message with links to bulk import. |
+| Command                  | Description                                   |
+| ------------------------ | --------------------------------------------- |
+| `/ekle <Name> \| <Link>` | Add a new anime to the database.              |
+| `/yedekle`               | Create an immediate manual backup.            |
+| `/addadmin <id>`         | (Owner Only) Promote a user to admin.         |
+| `/deladmin <id>`         | (Owner Only) Demote an admin.                 |
+| **Reply "import"**       | Reply to a message with links to bulk import. |
 
 ### 👤 User Commands
 
-| Command | Description |
-| :--- | :--- |
-| `/start` | Start the bot and see the welcome message. |
-| `/help` | View available commands. |
-| `/ara <query>` | Search for an anime in the database. |
-| `@BotName <query>` | Use inline search in any chat. |
+| Command            | Description                                |
+| ------------------ | ------------------------------------------ |
+| `/start`           | Start the bot and see the welcome message. |
+| `/help`            | View available commands.                   |
+| `/ara <query>`     | Search for an anime in the database.       |
+| `@BotName <query>` | Use inline search in any chat.             |
 
 ## 📂 Project Structure
 
@@ -107,8 +107,8 @@ A robust, modular, and professional Telegram bot designed to manage, store, and 
 
 The web panel runs on port `5000` by default.
 
-  - **Local:** `http://localhost:5000`
-  - **Server:** `http://YOUR_SERVER_IP:5000`
+* **Local:** `http://localhost:5000`
+* **Server:** `http://YOUR_SERVER_IP:5000`
 
 ## 📄 License
 
