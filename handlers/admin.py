@@ -85,13 +85,58 @@ async def cmd_add(message: types.Message, state: FSMContext):
             reply_markup=confirm_keyboard(message.from_user.id)
         )
 
-@router.message(F.text | F.caption) 
+@router.message(Command("import"))
+async def cmd_import_link(message: types.Message, bot: Bot):
+    if not is_admin(message.from_user.id): return
+    
+    args = message.text.split()
+    target_msg = None
+
+    if message.reply_to_message:
+        target_msg = message.reply_to_message
+    
+    elif len(args) > 1:
+        link = args[1]
+        pattern = r"t\.me\/(?:c\/)?(\d+|[\w\d_]+)\/(\d+)"
+        match = re.search(pattern, link)
+        
+        if match:
+            chat_identifier = match.group(1)
+            message_id = int(match.group(2))
+            
+            if chat_identifier.isdigit():
+                chat_id = int(f"-100{chat_identifier}")
+            else:
+                chat_id = f"@{chat_identifier}"
+            
+            try:
+                target_msg = await bot.forward_message(
+                    chat_id=message.chat.id,
+                    from_chat_id=chat_id,
+                    message_id=message_id
+                )
+                await target_msg.delete() 
+            except Exception as e:
+                await message.answer(f"⚠️ Mesaj alınamadı. Botun o kanalda/grupta olduğundan emin olun.\nHata: {str(e)}")
+                return
+
+    if not target_msg or (not target_msg.entities and not target_msg.text):
+        await message.answer("⚠️ İşlenecek mesaj bulunamadı.")
+        return
+
+    extracted = extract_animes_from_message(target_msg.text, target_msg.entities)
+    count = 0
+    for item in extracted:
+        success, _ = db.add_anime(item['title'], item['url'], message.from_user.id)
+        if success: count += 1
+    
+    await message.answer(f"✅ **{count}** yeni anime eklendi.\n/yayinla ile paylaşabilirsiniz.")
+
+@router.message((F.text & ~F.text.startswith("/")) | (F.caption & ~F.caption.startswith("/")))
 async def smart_import_handler(message: types.Message):
     if not is_admin(message.from_user.id): return
     if message.chat.type != "private": return
     
-    if message.text and message.text.startswith("/"): return
-
     extracted = extract_animes_from_message(message.text or message.caption, message.entities or message.caption_entities)
     
     if not extracted:
