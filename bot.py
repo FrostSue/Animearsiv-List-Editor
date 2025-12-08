@@ -9,6 +9,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from handlers import admin, user, common, inline
 from database.db import db
 from web.panel import start_web_server
+from utils.tunnel import tunnel_manager
 
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
@@ -31,6 +32,9 @@ async def set_commands(bot: Bot):
     admin_commands = user_commands + [
         BotCommand(command="ekle", description="Yeni anime ekle"),
         BotCommand(command="yedekle", description="Manuel yedek al"),
+        BotCommand(command="yayinla", description="Listeyi güncelle"),
+        BotCommand(command="site", description="Web panel linki"),
+        BotCommand(command="siteadmin", description="Web admin ekle"),
         BotCommand(command="addadmin", description="Admin ekle (Owner)"),
         BotCommand(command="deladmin", description="Admin sil (Owner)")
     ]
@@ -57,15 +61,20 @@ async def main():
     scheduler.add_job(scheduled_backup, 'interval', hours=24)
     scheduler.start()
 
+    print("🌐 Web Paneli Başlatılıyor...")
     start_web_server()
+    
+    print("🚇 Cloudflare Tüneli Başlatılıyor...")
+    tunnel_manager.start()
     
     await set_commands(bot)
     
-    print("🤖 Bot ve Web Panel çalışıyor...")
+    print("🤖 Bot çalışıyor...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
+        tunnel_manager.stop()
         print("Bot durduruldu.")
