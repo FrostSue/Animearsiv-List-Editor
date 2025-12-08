@@ -136,9 +136,11 @@ async def cmd_import_link(message: types.Message, bot: Bot):
 async def smart_import_handler(message: types.Message):
     if not is_admin(message.from_user.id): return
     if message.chat.type != "private": return
-    
     if message.text and message.text.startswith("/"): return
     if message.caption and message.caption.startswith("/"): return
+
+    if not message.forward_origin and not message.forward_date:
+        return
 
     extracted = extract_animes_from_message(message.text or message.caption, message.entities or message.caption_entities)
     
