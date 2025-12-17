@@ -7,6 +7,10 @@ router = Router()
 @router.inline_query()
 async def inline_search_handler(query: types.InlineQuery):
     text = query.query.lower().strip()
+    
+    if text:
+        db.increment_stat("inline_count")
+
     data = db.load()
     anime_list = data.get("anime_list", [])
     
