@@ -29,9 +29,13 @@ async def cmd_help(message: Message):
             "--------------------------\n"
             "• `/ekle Ad | Link` : Yeni anime ekler\n"
             "• `/yedekle` : Veritabanını yedekler\n"
-            "• `/addadmin <id>` : Yeni admin ekler (Sadece Owner)\n"
-            "• `/deladmin <id>` : Admin siler (Sadece Owner)\n"
-            "• **Import** : Linkli mesaja yanıt olarak 'import' yazın."
+            "• `/stats` : Bot kullanım istatistikleri\n"
+            "• `/yayinla` : Listeyi kanala gönderir\n"
+            "• `/site` : Web Panel linki\n"
+            "• `/siteadmin` : Web Panel admin ekle\n"
+            "• `/addadmin <id>` : Yeni admin ekler (Owner)\n"
+            "• `/deladmin <id>` : Admin siler (Owner)\n"
+            "• **Import** : Linkli mesajı bota iletin (Forward)."
         )
 
     await message.answer(text, parse_mode="Markdown")
@@ -42,6 +46,8 @@ async def cmd_search(message: Message):
     if not query:
         await message.answer("🔍 Lütfen aranacak kelimeyi yazın.\nÖrnek: `/ara Naruto`", parse_mode="Markdown")
         return
+
+    db.increment_stat("search_count")
 
     data = db.load()
     results = [a for a in data["anime_list"] if query in a["title"].lower()]
