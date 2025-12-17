@@ -24,6 +24,22 @@ def is_admin(user_id):
 def is_owner(user_id):
     return user_id == OWNER_ID
 
+@router.message(Command("stats"))
+async def cmd_stats(message: types.Message):
+    if not is_admin(message.from_user.id): return
+    
+    stats = db.get_stats()
+    data = db.load()
+    total_anime = len(data.get("anime_list", []))
+    
+    text = (
+        "📊 **Bot İstatistikleri**\n\n"
+        f"📺 **Toplam Anime:** {total_anime}\n"
+        f"🔎 **Arama Komutu (/ara):** {stats.get('search_count', 0)}\n"
+        f"⚡ **Inline Arama:** {stats.get('inline_count', 0)}"
+    )
+    await message.answer(text, parse_mode="Markdown")
+
 @router.message(Command("site"))
 async def cmd_get_site(message: types.Message):
     if not is_admin(message.from_user.id): return
