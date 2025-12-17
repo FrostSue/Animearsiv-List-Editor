@@ -27,11 +27,11 @@ class Database:
                 "anime_list": [],
                 "admins": [],
                 "web_admins": {}, 
-                "settings": {"max_lines": 500, "message_ids": []}
+                "settings": {"max_lines": 500, "message_ids": []},
+                "stats": {"search_count": 0, "inline_count": 0}
             }
             if default_user and default_pass:
                 default_data["web_admins"][default_user] = generate_password_hash(default_pass)
-                print(f"🔐 İlk Web Admin Oluşturuldu: {default_user}")
             
             self.save(default_data)
         
@@ -43,9 +43,12 @@ class Database:
                 data["web_admins"] = {}
                 changed = True
             
+            if "stats" not in data:
+                data["stats"] = {"search_count": 0, "inline_count": 0}
+                changed = True
+
             if not data["web_admins"] and default_user and default_pass:
                 data["web_admins"][default_user] = generate_password_hash(default_pass)
-                print(f"🔐 Veritabanı Güncellendi: Varsayılan Admin ({default_user}) eklendi.")
                 changed = True
             
             if changed:
@@ -60,7 +63,13 @@ class Database:
             if backups:
                 shutil.copy(os.path.join(self.backup_dir, backups[-1]), self.db_file)
                 return self.load()
-            return {"anime_list": [], "admins": [], "web_admins": {}, "settings": {"max_lines": 500, "message_ids": []}}
+            return {
+                "anime_list": [], 
+                "admins": [], 
+                "web_admins": {}, 
+                "settings": {"max_lines": 500, "message_ids": []},
+                "stats": {"search_count": 0, "inline_count": 0}
+            }
 
     def save(self, data):
         if "anime_list" in data:
@@ -166,5 +175,18 @@ class Database:
             self.save(data)
             return True
         return False
+
+    def get_stats(self):
+        data = self.load()
+        return data.get("stats", {"search_count": 0, "inline_count": 0})
+
+    def increment_stat(self, key):
+        data = self.load()
+        if "stats" not in data:
+            data["stats"] = {"search_count": 0, "inline_count": 0}
+        
+        current = data["stats"].get(key, 0)
+        data["stats"][key] = current + 1
+        self.save(data)
 
 db = Database()
